@@ -18,7 +18,7 @@ PhotoForm.defaultProps = {
 
 function PhotoForm(props) {
     const { initialValues, isAddMode } = props;
-
+    console.log("initialValues: ", initialValues);
     const validationSchema = Yup.object().shape({
         title: Yup.string().required('This field is required.'),
 
@@ -71,9 +71,9 @@ function PhotoForm(props) {
                         />
 
                         <FormGroup>
-                            <Button type="submit" color='primary'>
+                            <Button type="submit" color={isAddMode ? 'primary' : 'success'}>
                                 {isSubmitting && <Spinner size="sm" />}
-                                Add new Photo
+                                {isAddMode ? 'Add new Photo' : 'Update your photo'}
                             </Button>
                         </FormGroup>
                     </Form>

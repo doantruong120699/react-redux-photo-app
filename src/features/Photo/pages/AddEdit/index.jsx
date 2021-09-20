@@ -1,9 +1,10 @@
 import Banner from 'components/Banner';
 import PhotoForm from 'features/Photo/components/PhotoForm';
-import { addPhoto } from 'features/Photo/photoSlice';
+import { addPhoto, updatePhoto } from 'features/Photo/photoSlice';
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { useHistory } from 'react-router';
+import { useSelector, useDispatch } from 'react-redux';
+import { useHistory, useParams } from 'react-router-dom';
+import { randomNumber } from 'utils/common';
 import './styles.scss';
 
 AddEditPage.propTypes = {};
@@ -11,15 +12,38 @@ AddEditPage.propTypes = {};
 function AddEditPage(props) {
     const dispatch = useDispatch();
     const history = useHistory()
+    const { photoId } = useParams();
+    const isAddMode = !photoId;
+    const editedPhoto = useSelector(state => {
+        const foundPhoto = state.photos.find(x => x.id === +photoId)
+        return foundPhoto;
+    });
+    const initialValues = isAddMode
+        ? {
+            title: '',
+            categoryId: null,
+            photo: '',
+        }
+        : editedPhoto;
 
     const handleSubmit = (values) => {
         return new Promise(resolve => {
             setTimeout(() => {
-                const action = addPhoto(values);
-                dispatch(action);
+                if (isAddMode) {
+                    const newPhoto = {
+                        ...values,
+                        id: randomNumber(10000, 99999),
+                    }
+                    const action = addPhoto(values);
+                    dispatch(action);
+                }
+                else {
+                    const action = updatePhoto(values);
+                    dispatch(action);
+                }
                 history.push('/photos')
                 resolve(true);
-            }, 100000);
+            }, 200);
         });
     }
     return (
@@ -28,6 +52,8 @@ function AddEditPage(props) {
 
             <div className="photo-edit__form">
                 <PhotoForm
+                    isAddMode={isAddMode}
+                    initialValues={initialValues}
                     onSubmit={handleSubmit}
                 />
             </div>
